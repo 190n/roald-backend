@@ -21,6 +21,7 @@ const client = redis.createClient(),
 							for (const ws of wss.clients) {
 								ws.send(result);
 							}
+							res.end();
 						}
 					});
 				} else {
