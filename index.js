@@ -2,13 +2,16 @@ const http = require('http'),
 	redis = require('redis'),
 	WebSocket = require('ws');
 
+const allowedOrigins = ['https://190n.github.io', 'http://localhost:5000'];
+
 const client = redis.createClient(),
 	wss = new WebSocket.Server({ noServer: true }),
 	server = http.createServer((req, res) => {
 		if (req.url == '/backflip') {
 			switch (req.method) {
 			case 'POST':
-				if (req.headers.origin == 'https://190n.github.io') {
+				if (allowedOrigins.includes(req.headers.origin)) {
+					res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
 					client.incr('roalds', (err, result) => {
 						if (err) {
 							res.statusCode = 500;
@@ -27,8 +30,8 @@ const client = redis.createClient(),
 				break;
 			case 'OPTIONS':
 				res.statusCode = 204;
-				if (req.headers.origin == 'https://190n.github.io') {
-					res.setHeader('Access-Control-Allow-Origin', 'https://190n.github.io');
+				if (allowedOrigins.includes(req.headers.origin)) {
+					res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
 					res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
 					res.setHeader('Access-Control-Max-Age', 86400);
 				}
@@ -49,7 +52,7 @@ server.on('upgrade', (req, sock, head) => {
 		wss.handleUpgrade(req, sock, head, ws => {
 			client.get('roalds', (err, result) => {
 				if (!err) {
-					ws.send(result ?? '0');
+					ws.send(result === null ? '0' : result);
 				}
 			});
 		});
