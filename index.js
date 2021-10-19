@@ -5,7 +5,7 @@ const http = require('http'),
 const client = redis.createClient(),
 	wss = new WebSocket.Server({ noServer: true }),
 	server = http.createServer((req, res) => {
-		if (req.url == '/roald') {
+		if (req.url == '/backflip') {
 			switch (req.method) {
 			case 'POST':
 				if (req.headers.origin == 'https://190n.github.io') {
